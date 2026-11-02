@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.rozkaam.app-mergeReleaseResources-67:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.5.0\\transforms\\b6a38d338fe0160e80ddf0361d186f62\\transformed\\standard-core-1.7.21\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,93",
+                        "endLines": "2,15",
+                        "endColumns": "37,12",
+                        "endOffsets": "88,871"
+                    }
+                }
+            ]
+        }
+    ]
+}

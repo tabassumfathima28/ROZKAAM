@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.data.model.UserModelTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-02T15:22:44.587Z" hostname="DESKTOP-16HKJ30" time="0.033">
+  <properties/>
+  <testcase name="testIsProfileComplete_WhenNameOrEmergencyMissing_ReturnsFalse" classname="com.rozkaam.app.data.model.UserModelTest" time="0.013"/>
+  <testcase name="testUserSerializationAndDeserialization" classname="com.rozkaam.app.data.model.UserModelTest" time="0.007"/>
+  <testcase name="testPublicProfileFromDocument" classname="com.rozkaam.app.data.model.UserModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

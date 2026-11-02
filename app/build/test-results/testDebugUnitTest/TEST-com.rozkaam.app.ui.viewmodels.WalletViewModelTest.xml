@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.ui.viewmodels.WalletViewModelTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-02T15:22:44.899Z" hostname="DESKTOP-16HKJ30" time="0.035">
+  <properties/>
+  <testcase name="testClearError_resetsErrorMessage" classname="com.rozkaam.app.ui.viewmodels.WalletViewModelTest" time="0.002"/>
+  <testcase name="testRealtimeTransactionAdded_reflectsInUiState" classname="com.rozkaam.app.ui.viewmodels.WalletViewModelTest" time="0.018"/>
+  <testcase name="testInitialLoading_emitsLiveWalletAndTransactions" classname="com.rozkaam.app.ui.viewmodels.WalletViewModelTest" time="0.004"/>
+  <testcase name="testUnauthenticatedUser_showsAuthErrorMessage" classname="com.rozkaam.app.ui.viewmodels.WalletViewModelTest" time="0.003"/>
+  <testcase name="testRealtimeWalletUpdate_reflectsInUiState" classname="com.rozkaam.app.ui.viewmodels.WalletViewModelTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

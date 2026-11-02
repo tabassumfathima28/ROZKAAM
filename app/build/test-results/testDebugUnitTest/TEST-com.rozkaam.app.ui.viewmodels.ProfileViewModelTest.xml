@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-02T15:22:44.851Z" hostname="DESKTOP-16HKJ30" time="0.027">
+  <properties/>
+  <testcase name="testUpdateEmergencyContact_Success_UpdatesRepo" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.006"/>
+  <testcase name="testUpdateEmergencyContact_Validates10Digits" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.002"/>
+  <testcase name="testSignOut_InvokesAuthSignOut" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.004"/>
+  <testcase name="testUserProfile_LoadedSuccessfully" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.003"/>
+  <testcase name="testInitialState_WhenUserNotSignedIn_SetsSignedOut" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.002"/>
+  <testcase name="testUpdateName_ValidatesMinLength" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.003"/>
+  <testcase name="testToggleMode_SwitchesBetweenWorkerAndPoster" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.004"/>
+  <testcase name="testUpdateName_Success_UpdatesRepo" classname="com.rozkaam.app.ui.viewmodels.ProfileViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

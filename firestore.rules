@@ -1,0 +1,116 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Default deny all unknown collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // users/{uid}
+    // SPEC.md A6: Readable only by the owner.
+    // The client may write only name, photoUrl, activeMode, emergencyContact,
+    // available, radiusKm, dailyGoal, fcmToken.
+    // Fields phone, rating, ratingCount, completedCount, createdAt cannot be modified by client updates.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+
+      // On creation by authenticated user for their own document
+      allow create: if isOwner(userId)
+                    && request.resource.data.phone is string
+                    && (request.resource.data.activeMode == 'worker' || request.resource.data.activeMode == 'poster')
+                    && request.resource.data.name is string
+                    && request.resource.data.emergencyContact is string;
+
+      // On update: client may write only allowed fields.
+      // Prohibit changing protected fields: phone, rating, ratingCount, completedCount, createdAt.
+      allow update: if isOwner(userId)
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['phone', 'rating', 'ratingCount', 'completedCount', 'createdAt'])
+                    && (
+                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['activeMode'])
+                      || (request.resource.data.activeMode == 'worker' || request.resource.data.activeMode == 'poster')
+                    );
+
+      // Users cannot delete their user profile document directly
+      allow delete: if false;
+    }
+
+    // publicProfiles/{uid}
+    // SPEC.md A6: Readable by signed-in users, maintained by Cloud Function trigger.
+    // Clients cannot write directly to publicProfiles. Keeps phone numbers private.
+    match /publicProfiles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // wallets/{uid}
+    // SPEC.md A6: Owner can read. Only Functions can write.
+    match /wallets/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
+    // transactions/{id}
+    // SPEC.md A6: Owner can read. Functions only.
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+
+    // tasks/{id}
+    // SPEC.md A6: Signed-in users can read. Functions only write.
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // taskSecrets/{taskId}
+    // SPEC.md A6: Only the poster can read. Functions only write.
+    match /taskSecrets/{taskId} {
+      allow read: if isAuthenticated() && resource.data.posterId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // payments/{razorpayOrderId}
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+
+    // withdrawals/{id}
+    match /withdrawals/{withdrawalId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+
+    // reviews/{id}
+    match /reviews/{reviewId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // notifications/{uid}/items/{id}
+    match /notifications/{userId}/items/{notificationId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // config/categories and config/app
+    // SPEC.md A6: config/categories and config/app
+    match /config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+  }
+}
+

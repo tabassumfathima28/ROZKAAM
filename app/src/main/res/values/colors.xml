@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A4 Design Tokens -->
+    <color name="old_burgundy">#43302E</color>
+    <color name="buttermilk">#FFF1B5</color>
+    <color name="background_light_buttermilk">#FFFAE6</color>
+    <color name="pastel_blue">#C1DBE8</color>
+    <color name="muted_green">#4F8A5B</color>
+    <color name="muted_red">#B5473A</color>
+</resources>
