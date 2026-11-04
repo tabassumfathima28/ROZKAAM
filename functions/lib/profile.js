@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.syncPublicProfile = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
+const firestore_1 = require("firebase-admin/firestore");
 const db = admin.firestore();
 /**
  * Cloud Function Trigger: syncPublicProfile
@@ -70,7 +71,7 @@ exports.syncPublicProfile = functions.firestore
         photoUrl: typeof userData.photoUrl === "string" ? userData.photoUrl : "",
         rating: typeof userData.rating === "number" ? userData.rating : 0.0,
         completedCount: typeof userData.completedCount === "number" ? userData.completedCount : 0,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore_1.FieldValue.serverTimestamp(),
     };
     functions.logger.info(`Syncing public profile for user ${uid}`);
     try {

@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import Razorpay from "razorpay";
 import {
   getRazorpayKeyId,
@@ -103,7 +104,7 @@ export async function executeTopUpCredit(
       {
         available: newAvailable,
         held: currentHeld,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
@@ -113,7 +114,7 @@ export async function executeTopUpCredit(
       status: "paid",
       razorpayPaymentId: paymentId,
       signature: signature || paymentData.signature || "",
-      paidAt: admin.firestore.FieldValue.serverTimestamp(),
+      paidAt: FieldValue.serverTimestamp(),
     });
 
     // 3. Append to immutable transactions ledger per Section A6
@@ -123,7 +124,7 @@ export async function executeTopUpCredit(
       amount: amount,
       taskId: null,
       razorpayPaymentId: paymentId,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     functions.logger.info(
@@ -205,7 +206,7 @@ export const createTopUpOrder = functions
         currency: order.currency || "INR",
         status: "created",
         receipt: receipt,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
       });
 
       functions.logger.info(`Created Razorpay order ${order.id} for user ${uid}, amount ₹${amount / 100}`);

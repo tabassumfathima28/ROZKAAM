@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 const db = admin.firestore();
 
@@ -38,7 +39,7 @@ export const syncPublicProfile = functions.firestore
       photoUrl: typeof userData.photoUrl === "string" ? userData.photoUrl : "",
       rating: typeof userData.rating === "number" ? userData.rating : 0.0,
       completedCount: typeof userData.completedCount === "number" ? userData.completedCount : 0,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     };
 
     functions.logger.info(`Syncing public profile for user ${uid}`);

@@ -10,7 +10,7 @@ public final class BuildConfig {
   public static final int VERSION_CODE = 1;
   public static final String VERSION_NAME = "1.0.0";
   // Field from default config.
-  public static final String MAPS_API_KEY = "";
+  public static final String MAPS_API_KEY = "AIzaSyAjO0aTlzHxXBnT38cn0fGrPy1_PYu1R_4";
   // Field from default config.
-  public static final String RAZORPAY_KEY_ID = "";
+  public static final String RAZORPAY_KEY_ID = "rzp_test_TvMUsIR5BLM3Qi";
 }

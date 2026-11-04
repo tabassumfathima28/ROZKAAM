@@ -40,6 +40,7 @@ exports.razorpayWebhook = exports.verifyTopUp = exports.createTopUpOrder = void 
 exports.executeTopUpCredit = executeTopUpCredit;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
+const firestore_1 = require("firebase-admin/firestore");
 const razorpay_1 = __importDefault(require("razorpay"));
 const config_1 = require("./config");
 const crypto_1 = require("./crypto");
@@ -99,14 +100,14 @@ async function executeTopUpCredit(uid, orderId, paymentId, signature) {
         transaction.set(walletRef, {
             available: newAvailable,
             held: currentHeld,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firestore_1.FieldValue.serverTimestamp(),
         }, { merge: true });
         // 2. Mark payment document as paid
         transaction.update(paymentRef, {
             status: "paid",
             razorpayPaymentId: paymentId,
             signature: signature || paymentData.signature || "",
-            paidAt: admin.firestore.FieldValue.serverTimestamp(),
+            paidAt: firestore_1.FieldValue.serverTimestamp(),
         });
         // 3. Append to immutable transactions ledger per Section A6
         transaction.set(transactionRef, {
@@ -115,7 +116,7 @@ async function executeTopUpCredit(uid, orderId, paymentId, signature) {
             amount: amount,
             taskId: null,
             razorpayPaymentId: paymentId,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: firestore_1.FieldValue.serverTimestamp(),
         });
         functions.logger.info(`Successfully credited ₹${amount / 100} to wallet ${uid}. New available: ₹${newAvailable / 100}`);
         return {
@@ -175,7 +176,7 @@ exports.createTopUpOrder = functions
             currency: order.currency || "INR",
             status: "created",
             receipt: receipt,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: firestore_1.FieldValue.serverTimestamp(),
         });
         functions.logger.info(`Created Razorpay order ${order.id} for user ${uid}, amount ₹${amount / 100}`);
         return {
