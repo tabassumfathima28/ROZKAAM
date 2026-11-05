@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-03T12:52:34.784Z" hostname="DESKTOP-16HKJ30" time="0.024">
+<testsuite name="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T17:44:52.083Z" hostname="DESKTOP-16HKJ30" time="0.019">
   <properties/>
-  <testcase name="testSaveProfile_WithoutSignIn_SetsError" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.007"/>
-  <testcase name="testSaveProfile_WithBlankName_SetsError" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.006"/>
-  <testcase name="testSaveProfile_Success_SavesUserAndTriggersCallback" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.006"/>
-  <testcase name="testStepTransitions_RoleSelectionToProfileSetupAndBack" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.0"/>
-  <testcase name="testDefaultRole_IsWorker" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.001"/>
-  <testcase name="testRoleChange_SwitchesRole" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.0"/>
-  <testcase name="testSaveProfile_WithInvalidEmergencyContact_SetsError" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.004"/>
+  <testcase name="testSaveProfile_WithoutSignIn_SetsError" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.005"/>
+  <testcase name="testSaveProfile_WithBlankName_SetsError" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.003"/>
+  <testcase name="testSaveProfile_Success_SavesUserAndTriggersCallback" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.005"/>
+  <testcase name="testStepTransitions_RoleSelectionToProfileSetupAndBack" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.002"/>
+  <testcase name="testDefaultRole_IsWorker" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.0"/>
+  <testcase name="testRoleChange_SwitchesRole" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.001"/>
+  <testcase name="testSaveProfile_WithInvalidEmergencyContact_SetsError" classname="com.rozkaam.app.ui.viewmodels.RoleSelectionViewModelTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

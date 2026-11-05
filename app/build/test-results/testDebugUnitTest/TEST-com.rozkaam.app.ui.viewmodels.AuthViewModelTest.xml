@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-03T12:52:34.711Z" hostname="DESKTOP-16HKJ30" time="0.011">
+<testsuite name="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-05T17:44:52.006Z" hostname="DESKTOP-16HKJ30" time="0.006">
   <properties/>
-  <testcase name="testOtpInput_FiltersNonDigitsAndLimitsTo6" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.004"/>
-  <testcase name="testResetToPhoneInput_ClearsOtpAndCodeSentFlag" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.0"/>
-  <testcase name="testPhoneNumberInput_FiltersNonDigitsAndLimitsTo10" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.001"/>
-  <testcase name="testVerifyOtp_WithoutCodeSent_ShowsErrorMessage" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.004"/>
+  <testcase name="testOtpInput_FiltersNonDigitsAndLimitsTo6" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.002"/>
+  <testcase name="testResetToPhoneInput_ClearsOtpAndCodeSentFlag" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.001"/>
+  <testcase name="testPhoneNumberInput_FiltersNonDigitsAndLimitsTo10" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.0"/>
+  <testcase name="testVerifyOtp_WithoutCodeSent_ShowsErrorMessage" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.002"/>
   <testcase name="testClearError_ClearsErrorMessage" classname="com.rozkaam.app.ui.viewmodels.AuthViewModelTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

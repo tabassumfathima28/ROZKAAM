@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.data.model.TaskModelTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-05T17:44:51.757Z" hostname="DESKTOP-16HKJ30" time="0.026">
+  <properties/>
+  <testcase name="taskCategory_fromMap_parsesCorrectly" classname="com.rozkaam.app.data.model.TaskModelTest" time="0.014"/>
+  <testcase name="task_fromMap_parsesCorrectly" classname="com.rozkaam.app.data.model.TaskModelTest" time="0.001"/>
+  <testcase name="task_defaultValues" classname="com.rozkaam.app.data.model.TaskModelTest" time="0.002"/>
+  <testcase name="task_priceFormattingAndConversions" classname="com.rozkaam.app.data.model.TaskModelTest" time="0.001"/>
+  <testcase name="task_statusHelpers" classname="com.rozkaam.app.data.model.TaskModelTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

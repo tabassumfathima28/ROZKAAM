@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.razorpayWebhook = exports.verifyTopUp = exports.createTopUpOrder = exports.syncPublicProfile = void 0;
+exports.postTask = exports.razorpayWebhook = exports.verifyTopUp = exports.createTopUpOrder = exports.syncPublicProfile = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin once at module load
 if (!admin.apps.length) {
@@ -46,4 +46,6 @@ var topup_1 = require("./topup");
 Object.defineProperty(exports, "createTopUpOrder", { enumerable: true, get: function () { return topup_1.createTopUpOrder; } });
 Object.defineProperty(exports, "verifyTopUp", { enumerable: true, get: function () { return topup_1.verifyTopUp; } });
 Object.defineProperty(exports, "razorpayWebhook", { enumerable: true, get: function () { return topup_1.razorpayWebhook; } });
+var tasks_1 = require("./tasks");
+Object.defineProperty(exports, "postTask", { enumerable: true, get: function () { return tasks_1.postTask; } });
 //# sourceMappingURL=index.js.map

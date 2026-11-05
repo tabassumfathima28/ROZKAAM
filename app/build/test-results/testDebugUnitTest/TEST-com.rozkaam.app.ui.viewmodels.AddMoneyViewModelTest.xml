@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-03T12:52:34.260Z" hostname="DESKTOP-16HKJ30" time="0.447">
+<testsuite name="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-05T17:44:51.824Z" hostname="DESKTOP-16HKJ30" time="0.18">
   <properties/>
-  <testcase name="testVerifyPayment_validSignature_marksPaymentSuccess" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.394"/>
-  <testcase name="testResetState_clearsAllFields" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.007"/>
-  <testcase name="testUpdateCustomAmount_overridesQuickAmount" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.006"/>
-  <testcase name="testDefaultState_loadsConfigAndSelectsFirstChip" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.006"/>
-  <testcase name="testVerifyPayment_forgedSignature_showsVerificationError" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.006"/>
-  <testcase name="testInitiateTopUp_whenOrderFails_showsError" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.007"/>
-  <testcase name="testSelectQuickAmount_updatesEffectiveAmount" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.004"/>
-  <testcase name="testInitiateTopUp_amountBelowMinimum_showsError" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.007"/>
-  <testcase name="testInitiateTopUp_validAmount_createsOrderReadyForCheckout" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.007"/>
+  <testcase name="testVerifyPayment_validSignature_marksPaymentSuccess" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.159"/>
+  <testcase name="testResetState_clearsAllFields" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.003"/>
+  <testcase name="testUpdateCustomAmount_overridesQuickAmount" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.002"/>
+  <testcase name="testDefaultState_loadsConfigAndSelectsFirstChip" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.002"/>
+  <testcase name="testVerifyPayment_forgedSignature_showsVerificationError" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.002"/>
+  <testcase name="testInitiateTopUp_whenOrderFails_showsError" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.003"/>
+  <testcase name="testSelectQuickAmount_updatesEffectiveAmount" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.002"/>
+  <testcase name="testInitiateTopUp_amountBelowMinimum_showsError" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.003"/>
+  <testcase name="testInitiateTopUp_validAmount_createsOrderReadyForCheckout" classname="com.rozkaam.app.ui.viewmodels.AddMoneyViewModelTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

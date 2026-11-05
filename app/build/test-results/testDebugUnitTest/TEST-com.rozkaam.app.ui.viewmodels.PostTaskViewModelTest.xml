@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T17:44:52.015Z" hostname="DESKTOP-16HKJ30" time="0.026">
+  <properties/>
+  <testcase name="submitTask_successfulEscrowPlacement" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.011"/>
+  <testcase name="initialState_loadsCategoriesAndWallet" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.002"/>
+  <testcase name="step3_priceBoundsAndBalanceValidation" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.003"/>
+  <testcase name="submitTask_backendFailure_setsErrorMessage" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.002"/>
+  <testcase name="previousStep_navigatesBackwards" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.002"/>
+  <testcase name="step1_validationRequiresTitleDescriptionCategory" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.002"/>
+  <testcase name="step2_locationAndSchedulingValidation" classname="com.rozkaam.app.ui.viewmodels.PostTaskViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -12,3 +12,4 @@ export {
   verifyTopUp,
   razorpayWebhook,
 } from "./topup";
+export { postTask } from "./tasks";

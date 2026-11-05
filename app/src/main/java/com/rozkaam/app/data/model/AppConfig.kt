@@ -15,6 +15,12 @@ data class AppConfig(
     val arrivalRadiusMeters: Int = 100,
     val autoReleaseHours: Int = 24
 ) {
+    val minPriceRupees: Long
+        get() = minPrice / 100
+
+    val maxPriceRupees: Long
+        get() = maxPrice / 100
+
     companion object {
         fun fromMap(map: Map<String, Any?>?): AppConfig {
             if (map == null) return AppConfig()
