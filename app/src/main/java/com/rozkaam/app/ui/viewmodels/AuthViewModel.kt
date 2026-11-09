@@ -1,6 +1,7 @@
 package com.rozkaam.app.ui.viewmodels
 
 import android.app.Activity
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseException
@@ -40,6 +41,13 @@ class AuthViewModel(
     private var verificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
     private var countdownJob: Job? = null
+    private var otpTimeoutJob: Job? = null
+
+    companion object {
+        private const val TAG = "AuthViewModel"
+        // Max seconds to wait for OTP callback before resetting loading state
+        private const val OTP_SEND_TIMEOUT_SECONDS = 65L
+    }
 
     fun onPhoneNumberChange(rawNumber: String) {
         val filtered = rawNumber.filter { it.isDigit() }.take(10)
@@ -61,6 +69,7 @@ class AuthViewModel(
 
     fun resetToPhoneInput() {
         countdownJob?.cancel()
+        otpTimeoutJob?.cancel()
         _uiState.update {
             it.copy(
                 isCodeSent = false,
@@ -74,6 +83,7 @@ class AuthViewModel(
 
     fun resetLoginState() {
         countdownJob?.cancel()
+        otpTimeoutJob?.cancel()
         verificationId = null
         resendToken = null
         _uiState.value = AuthUiState()
@@ -93,9 +103,27 @@ class AuthViewModel(
         val fullPhoneNumber = "+91$phone"
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
+        // Safety timeout: if no Firebase callback fires within OTP_SEND_TIMEOUT_SECONDS,
+        // reset loading state so the UI is never permanently stuck.
+        otpTimeoutJob?.cancel()
+        otpTimeoutJob = viewModelScope.launch {
+            delay(OTP_SEND_TIMEOUT_SECONDS * 1000)
+            if (_uiState.value.isLoading && !_uiState.value.isCodeSent) {
+                Log.w(TAG, "OTP send timed out after ${OTP_SEND_TIMEOUT_SECONDS}s — no callback received. Check emulator connectivity.")
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Could not reach authentication server. Ensure Firebase Auth Emulator is running on 10.0.2.2:9099 and the app is on an Android Emulator (not a physical device)."
+                    )
+                }
+            }
+        }
+
         val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                // Instant auto-retrieval on device
+                // Instant auto-retrieval on device (SMS auto-read or emulator instant verification)
+                Log.d(TAG, "onVerificationCompleted — auto sign-in with credential")
+                otpTimeoutJob?.cancel()
                 viewModelScope.launch {
                     val result = authRepository.signInWithCredential(credential)
                     result.fold(
@@ -120,6 +148,8 @@ class AuthViewModel(
             }
 
             override fun onVerificationFailed(exception: FirebaseException) {
+                Log.e(TAG, "onVerificationFailed: ${exception.javaClass.simpleName} — ${exception.message}", exception)
+                otpTimeoutJob?.cancel()
                 val message = when (exception) {
                     is FirebaseTooManyRequestsException ->
                         "Too many requests. SMS quota reached or rate-limited. Please wait a few minutes."
@@ -135,6 +165,8 @@ class AuthViewModel(
                 verId: String,
                 token: PhoneAuthProvider.ForceResendingToken
             ) {
+                Log.d(TAG, "onCodeSent — verificationId received, showing OTP screen")
+                otpTimeoutJob?.cancel()
                 verificationId = verId
                 resendToken = token
                 _uiState.update {
@@ -217,5 +249,6 @@ class AuthViewModel(
     override fun onCleared() {
         super.onCleared()
         countdownJob?.cancel()
+        otpTimeoutJob?.cancel()
     }
 }

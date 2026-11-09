@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.Build
@@ -43,29 +48,34 @@ import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material.icons.outlined.Yard
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -75,14 +85,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.rozkaam.app.R
 import com.rozkaam.app.data.model.TaskCategory
 import com.rozkaam.app.ui.components.RozkaamCard
 import com.rozkaam.app.ui.components.RozkaamChip
@@ -109,6 +113,7 @@ import com.rozkaam.app.ui.viewmodels.PostTaskUiState
 import com.rozkaam.app.ui.viewmodels.PostTaskViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
 import java.util.Locale
 
 val postTaskSteps = listOf(
@@ -156,6 +161,7 @@ fun PosterPostTaskScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
+                    .imePadding()
                     .padding(horizontal = 20.dp)
             ) {
                 // Step Tracker per SPEC.md A5
@@ -245,19 +251,21 @@ fun PosterPostTaskScreen(
  * Step 1: What is the task?
  * Dynamic category chips from Firestore config/categories, task title and description.
  */
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun Step1WhatScreen(
     uiState: PostTaskUiState,
     viewModel: PostTaskViewModel
 ) {
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    val descBringIntoViewRequester = remember { BringIntoViewRequester() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(bottom = 16.dp)
+            .padding(bottom = 24.dp)
     ) {
         Text(
             text = "Select Category",
@@ -386,7 +394,16 @@ private fun Step1WhatScreen(
                     color = TextSecondary
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .bringIntoViewRequester(descBringIntoViewRequester)
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        coroutineScope.launch {
+                            descBringIntoViewRequester.bringIntoView()
+                        }
+                    }
+                },
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = OldBurgundy,
@@ -404,13 +421,14 @@ private fun Step1WhatScreen(
             color = if (uiState.description.isNotBlank() && uiState.description.length < 5) MutedRed else TextSecondary,
             modifier = Modifier.padding(start = 4.dp, top = 4.dp)
         )
+        Spacer(modifier = Modifier.height(48.dp))
     }
 }
 
 /**
  * Step 2: Where and when?
- * Google Maps SDK with draggable location pin, Geocoder address resolution,
- * Use My Current Location option with graceful fallback, and scheduling options.
+ * Static map illustration, Geocoder address resolution, Use My Current Location,
+ * and scheduling options.
  */
 @SuppressLint("MissingPermission")
 @Composable
@@ -420,29 +438,12 @@ private fun Step2WhereWhenScreen(
     context: Context
 ) {
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     var permissionDeniedNotice by remember { mutableStateOf<String?>(null) }
+    var isSearchingAddress by remember { mutableStateOf(false) }
 
     val fusedLocationClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(
-            LatLng(uiState.latitude, uiState.longitude),
-            15f
-        )
-    }
-
-    val markerState = remember {
-        MarkerState(position = LatLng(uiState.latitude, uiState.longitude))
-    }
-
-    // Keep marker position synced when coordinates change
-    LaunchedEffect(uiState.latitude, uiState.longitude) {
-        val currentLatLng = LatLng(uiState.latitude, uiState.longitude)
-        if (markerState.position != currentLatLng) {
-            markerState.position = currentLatLng
-        }
     }
 
     // Permission launcher for Location
@@ -458,8 +459,6 @@ private fun Step2WhereWhenScreen(
             fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
                 .addOnSuccessListener { loc ->
                     if (loc != null) {
-                        val latLng = LatLng(loc.latitude, loc.longitude)
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 16f)
                         viewModel.updateLocation(loc.latitude, loc.longitude) { lat, lng ->
                             resolveAddressFromCoordinates(context, lat, lng)
                         }
@@ -467,7 +466,7 @@ private fun Step2WhereWhenScreen(
                 }
         } else {
             // Graceful fallback per SPEC.md Section A10
-            permissionDeniedNotice = "Location permission denied. You can drag the pin on the map to set your exact location."
+            permissionDeniedNotice = "Location permission denied. Please enter or search for your address."
         }
     }
 
@@ -475,8 +474,56 @@ private fun Step2WhereWhenScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(bottom = 16.dp)
+            .padding(bottom = 24.dp)
     ) {
+        // Mountain View Mock GPS Warning & One-Click Fix
+        if (uiState.isMountainViewDefault) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = MutedRed.copy(alpha = 0.12f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MutedRed.copy(alpha = 0.35f))
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Outlined.ErrorOutline,
+                            contentDescription = null,
+                            tint = MutedRed,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Emulator Default Location (Mountain View, USA) Detected",
+                            fontFamily = PoppinsFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = MutedRed
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Tasks must be located in India. Tap below to switch to Bengaluru center or enter your local address.",
+                        fontFamily = NunitoFontFamily,
+                        fontSize = 12.sp,
+                        color = OldBurgundy
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RozkaamSecondaryButton(
+                        text = "Set to Bengaluru (MG Road)",
+                        onClick = {
+                            val blrLat = 12.9716
+                            val blrLng = 77.5946
+                            viewModel.updateLocation(blrLat, blrLng) { _, _ -> "MG Road, Bengaluru, Karnataka" }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -510,8 +557,6 @@ private fun Step2WhereWhenScreen(
                             fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
                                 .addOnSuccessListener { loc ->
                                     if (loc != null) {
-                                        val latLng = LatLng(loc.latitude, loc.longitude)
-                                        cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 16f)
                                         viewModel.updateLocation(loc.latitude, loc.longitude) { lat, lng ->
                                             resolveAddressFromCoordinates(context, lat, lng)
                                         }
@@ -582,7 +627,7 @@ private fun Step2WhereWhenScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Google Map with Draggable Pin
+        // Offline map illustration; the marker is part of the local asset.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -590,41 +635,25 @@ private fun Step2WhereWhenScreen(
                 .clip(RozkaamCardShape)
                 .border(1.dp, OldBurgundy.copy(alpha = 0.2f), RozkaamCardShape)
         ) {
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                uiSettings = MapUiSettings(
-                    zoomControlsEnabled = false,
-                    myLocationButtonEnabled = false,
-                    compassEnabled = true
-                )
-            ) {
-                Marker(
-                    state = markerState,
-                    title = "Task Location (Drag to change)",
-                    snippet = uiState.address,
-                    draggable = true
-                )
-            }
-
-            // Sync marker drag back to ViewModel
-            LaunchedEffect(markerState.position) {
-                if (markerState.position.latitude != uiState.latitude ||
-                    markerState.position.longitude != uiState.longitude
-                ) {
-                    viewModel.updateLocation(
-                        markerState.position.latitude,
-                        markerState.position.longitude
-                    ) { lat, lng ->
-                        resolveAddressFromCoordinates(context, lat, lng)
-                    }
-                }
-            }
+            Image(
+                painter = painterResource(id = R.drawable.task_location_map),
+                contentDescription = "Static task location map",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
         }
+
+        Text(
+            text = "Tip: Use Current GPS or search an address below to set your task location.",
+            fontFamily = NunitoFontFamily,
+            fontSize = 11.sp,
+            color = TextSecondary,
+            modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Resolved Address Card
+        // Resolved Address Card with Forward Geocoding Search
         RozkaamCard(
             containerColor = Color.White,
             borderColor = OldBurgundy.copy(alpha = 0.15f),
@@ -649,9 +678,9 @@ private fun Step2WhereWhenScreen(
                         fontSize = 13.sp,
                         color = OldBurgundy
                     )
-                    if (uiState.isGeocoding) {
+                    if (uiState.isGeocoding || isSearchingAddress) {
                         Text(
-                            text = "Resolving address via Geocoder...",
+                            text = if (isSearchingAddress) "Finding address coordinates..." else "Resolving address via Geocoder...",
                             fontFamily = NunitoFontFamily,
                             fontSize = 12.sp,
                             color = TextSecondary
@@ -661,6 +690,28 @@ private fun Step2WhereWhenScreen(
                             value = uiState.address,
                             onValueChange = { viewModel.onAddressChange(it) },
                             modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        if (uiState.address.isNotBlank()) {
+                                            isSearchingAddress = true
+                                            coroutineScope.launch {
+                                                val coords = resolveCoordinatesFromAddress(context, uiState.address)
+                                                isSearchingAddress = false
+                                                if (coords != null) {
+                                                    viewModel.updateLocation(coords.first, coords.second)
+                                                }
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Search,
+                                        contentDescription = "Search location",
+                                        tint = OldBurgundy
+                                    )
+                                }
+                            },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = OldBurgundy,
                                 unfocusedBorderColor = Color.Transparent,
@@ -870,7 +921,7 @@ private fun Step3PricePayScreen(
                         color = TextSecondary
                     )
                     Text(
-                        text = "₹${uiState.wallet.availableRupees}",
+                        text = "₹${formatRupees(uiState.wallet.availableRupees)}",
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
@@ -938,7 +989,7 @@ private fun Step3PricePayScreen(
                 val neededRupees = uiState.priceRupees - uiState.wallet.availableRupees
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "You need ₹$neededRupees more to post this task.",
+                    text = "You need ₹${formatRupees(neededRupees)} more to post this task.",
                     fontFamily = NunitoFontFamily,
                     fontSize = 13.sp,
                     color = MutedRed
@@ -989,6 +1040,9 @@ private fun Step3PricePayScreen(
         }
     }
 }
+
+private fun formatRupees(amount: Number): String =
+    NumberFormat.getNumberInstance(Locale("en", "IN")).format(amount)
 
 /**
  * Bottom Navigation & Submission Bar for Wizard.
@@ -1143,6 +1197,27 @@ suspend fun resolveAddressFromCoordinates(
                 .filter { it.isNotBlank() }
                 .joinToString(", ")
             joined.ifBlank { addr.getAddressLine(0) }
+        } else null
+    } catch (e: Exception) {
+        null
+    }
+}
+
+/**
+ * Android Geocoder forward geocoder helper executing on background dispatcher.
+ * Returns Pair(latitude, longitude) if an address is resolved, or null otherwise.
+ */
+suspend fun resolveCoordinatesFromAddress(
+    context: Context,
+    addressStr: String
+): Pair<Double, Double>? = withContext(Dispatchers.IO) {
+    try {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        @Suppress("DEPRECATION")
+        val addresses = geocoder.getFromLocationName(addressStr, 1)
+        if (!addresses.isNullOrEmpty()) {
+            val addr = addresses[0]
+            Pair(addr.latitude, addr.longitude)
         } else null
     } catch (e: Exception) {
         null

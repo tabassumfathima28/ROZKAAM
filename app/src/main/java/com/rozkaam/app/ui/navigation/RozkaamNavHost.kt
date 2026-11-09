@@ -39,6 +39,7 @@ import com.rozkaam.app.ui.screens.worker.WorkerHomeScreen
 import com.rozkaam.app.ui.screens.worker.WorkerJobCompletedScreen
 import com.rozkaam.app.ui.screens.worker.WorkerTaskDetailsScreen
 import com.rozkaam.app.ui.screens.worker.WorkerTasksScreen
+import com.rozkaam.app.ui.screens.worker.WorkerTaskQrScannerScreen
 import com.rozkaam.app.ui.screens.worker.WorkerUploadProofScreen
 import com.rozkaam.app.ui.screens.worker.WorkerWithdrawScreen
 import com.rozkaam.app.ui.theme.BackgroundLight
@@ -172,31 +173,92 @@ fun RozkaamApp() {
             ) {
                 composable(Screen.WorkerHome.route) {
                     WorkerHomeScreen(
-                        onNavigateToTaskDetails = { navController.navigate(Screen.WorkerTaskDetails.route) },
+                        onNavigateToTaskDetails = { taskId ->
+                            navController.navigate("worker/task_details?taskId=$taskId")
+                        },
                         onNavigateToActiveJob = { navController.navigate(Screen.WorkerActiveJob.route) },
                         onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
                         onNavigateToSos = { navController.navigate(Screen.Sos.route) }
                     )
                 }
 
-                composable(Screen.WorkerTaskDetails.route) {
+                composable(
+                    route = "worker/task_details?taskId={taskId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("taskId") {
+                            type = androidx.navigation.NavType.StringType
+                            defaultValue = ""
+                        }
+                    )
+                ) { backStackEntry ->
+                    val taskId = backStackEntry.arguments?.getString("taskId").orEmpty()
                     WorkerTaskDetailsScreen(
+                        taskId = taskId,
                         onNavigateBack = { navController.popBackStack() },
-                        onAcceptTask = { navController.navigate(Screen.WorkerActiveJob.route) }
+                        onAcceptTask = { acceptedTaskId ->
+                            navController.navigate(Screen.WorkerUploadProof.createRoute(acceptedTaskId))
+                        }
                     )
                 }
 
-                composable(Screen.WorkerActiveJob.route) {
+                composable(
+                    route = "worker/active_job?taskId={taskId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("taskId") {
+                            type = androidx.navigation.NavType.StringType
+                            defaultValue = ""
+                        }
+                    )
+                ) { backStackEntry ->
                     WorkerActiveJobScreen(
+                        taskId = backStackEntry.arguments?.getString("taskId").orEmpty(),
                         onNavigateBack = { navController.popBackStack() },
-                        onNavigateToUploadProof = { navController.navigate(Screen.WorkerUploadProof.route) },
+                        onNavigateToUploadProof = { acceptedTaskId ->
+                            navController.navigate(Screen.WorkerUploadProof.createRoute(acceptedTaskId))
+                        },
                         onNavigateToJobCompleted = { navController.navigate(Screen.WorkerJobCompleted.route) }
                     )
                 }
 
-                composable(Screen.WorkerUploadProof.route) {
+                composable(
+                    route = "worker/upload_proof?taskId={taskId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("taskId") {
+                            type = androidx.navigation.NavType.StringType
+                            defaultValue = ""
+                        }
+                    )
+                ) { backStackEntry ->
                     WorkerUploadProofScreen(
-                        onNavigateBack = { navController.popBackStack() }
+                        taskId = backStackEntry.arguments?.getString("taskId").orEmpty(),
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToActiveJob = { acceptedTaskId ->
+                            navController.navigate(Screen.WorkerActiveJob.createRoute(acceptedTaskId))
+                        },
+                        onNavigateToProofQrScanner = { submittedTaskId ->
+                            navController.navigate(Screen.WorkerProofQrScanner.createRoute(submittedTaskId))
+                        }
+                    )
+                }
+
+                composable(
+                    route = "worker/proof_qr_scanner?taskId={taskId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("taskId") {
+                            type = androidx.navigation.NavType.StringType
+                            defaultValue = ""
+                        }
+                    )
+                ) { backStackEntry ->
+                    WorkerTaskQrScannerScreen(
+                        taskId = backStackEntry.arguments?.getString("taskId").orEmpty(),
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToTasks = {
+                            navController.navigate(Screen.WorkerTasks.route) {
+                                popUpTo(GRAPH_WORKER) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
                     )
                 }
 
@@ -220,8 +282,15 @@ fun RozkaamApp() {
 
                 composable(Screen.WorkerTasks.route) {
                     WorkerTasksScreen(
-                        onNavigateToTaskDetails = { navController.navigate(Screen.WorkerTaskDetails.route) },
-                        onNavigateToActiveJob = { navController.navigate(Screen.WorkerActiveJob.route) }
+                        onNavigateToTaskDetails = { taskId ->
+                            navController.navigate(Screen.WorkerTaskDetails.createRoute(taskId))
+                        },
+                        onNavigateToActiveJob = { taskId ->
+                            navController.navigate(Screen.WorkerActiveJob.createRoute(taskId))
+                        },
+                        onNavigateToUploadProof = { taskId ->
+                            navController.navigate(Screen.WorkerUploadProof.createRoute(taskId))
+                        }
                     )
                 }
             }
@@ -234,7 +303,9 @@ fun RozkaamApp() {
                 composable(Screen.PosterHome.route) {
                     PosterHomeScreen(
                         onNavigateToPostTask = { navController.navigate(Screen.PosterPostTask.route) },
-                        onNavigateToTaskDetails = { navController.navigate(Screen.PosterTaskDetails.route) },
+                        onNavigateToTaskDetails = { taskId ->
+                            navController.navigate("poster/task_details?taskId=$taskId")
+                        },
                         onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
                         onNavigateToSos = { navController.navigate(Screen.Sos.route) }
                     )
@@ -247,15 +318,28 @@ fun RozkaamApp() {
                     )
                 }
 
-                composable(Screen.PosterTaskDetails.route) {
+                composable(
+                    route = "poster/task_details?taskId={taskId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("taskId") {
+                            type = androidx.navigation.NavType.StringType
+                            defaultValue = ""
+                        }
+                    )
+                ) { backStackEntry ->
+                    val taskId = backStackEntry.arguments?.getString("taskId").orEmpty()
                     PosterTaskDetailsScreen(
+                        taskId = taskId,
                         onNavigateBack = { navController.popBackStack() }
                     )
                 }
 
                 composable(Screen.PosterTasks.route) {
                     PosterTasksScreen(
-                        onNavigateToPostTask = { navController.navigate(Screen.PosterPostTask.route) }
+                        onNavigateToPostTask = { navController.navigate(Screen.PosterPostTask.route) },
+                        onNavigateToTaskDetails = { taskId ->
+                            navController.navigate("poster/task_details?taskId=$taskId")
+                        }
                     )
                 }
 

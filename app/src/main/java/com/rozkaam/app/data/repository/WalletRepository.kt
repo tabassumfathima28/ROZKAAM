@@ -83,10 +83,14 @@ class FirestoreWalletRepository(
             "amount" to amountPaise
         )
 
-        val result = functions
-            .getHttpsCallable("createTopUpOrder")
-            .call(data)
-            .await()
+        val result = try {
+            functions
+                .getHttpsCallable("createTopUpOrder")
+                .call(data)
+                .await()
+        } catch (e: java.util.concurrent.ExecutionException) {
+            throw (e.cause ?: e)
+        }
 
         @Suppress("UNCHECKED_CAST")
         val response = result.getData() as? Map<String, Any?>
@@ -117,10 +121,14 @@ class FirestoreWalletRepository(
             "signature" to signature
         )
 
-        val result = functions
-            .getHttpsCallable("verifyTopUp")
-            .call(data)
-            .await()
+        val result = try {
+            functions
+                .getHttpsCallable("verifyTopUp")
+                .call(data)
+                .await()
+        } catch (e: java.util.concurrent.ExecutionException) {
+            throw (e.cause ?: e)
+        }
 
         @Suppress("UNCHECKED_CAST")
         val response = result.getData() as? Map<String, Any?>

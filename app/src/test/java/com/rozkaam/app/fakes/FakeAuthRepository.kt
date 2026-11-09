@@ -18,6 +18,7 @@ class FakeAuthRepository(
 ) : AuthRepository {
 
     private val authStateFlow = MutableStateFlow(initialUser)
+    private val authUserIdFlow = MutableStateFlow(fakeUserId ?: initialUser?.uid)
     var currentFakeUser: FirebaseUser? = initialUser
     var lastSentPhoneNumber: String? = null
     var signOutCalled: Boolean = false
@@ -38,6 +39,12 @@ class FakeAuthRepository(
         get() = fakeUserPhotoUrl ?: currentFakeUser?.photoUrl?.toString()
 
     override fun observeAuthState(): Flow<FirebaseUser?> = authStateFlow
+    override fun observeAuthUserId(): Flow<String?> = authUserIdFlow
+
+    fun updateAuthUserId(uid: String?) {
+        fakeUserId = uid
+        authUserIdFlow.value = uid
+    }
 
     override fun sendVerificationCode(
         activity: Activity,
@@ -74,7 +81,7 @@ class FakeAuthRepository(
     override fun signOut() {
         signOutCalled = true
         currentFakeUser = null
-        fakeUserId = null
+        updateAuthUserId(null)
         authStateFlow.value = null
     }
 

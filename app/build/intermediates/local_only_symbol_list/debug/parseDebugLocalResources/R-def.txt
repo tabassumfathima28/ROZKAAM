@@ -10,6 +10,7 @@ color muted_red
 color old_burgundy
 color pastel_blue
 drawable rozkaam_logo
+drawable task_location_map
 string app_name
 string app_tagline
 string gcm_defaultSenderId

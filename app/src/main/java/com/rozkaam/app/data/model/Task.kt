@@ -21,8 +21,11 @@ data class Task(
     val status: String = STATUS_OPEN,
     val scheduledFor: String = "Now",
     val proofPath: String? = null,
+    val proofDescription: String? = null,
+    val proofQrVerifiedAt: Timestamp? = null,
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
+    val acceptedAt: Timestamp? = null,
     val rated: Boolean = false
 ) {
     val priceRupees: Double
@@ -42,6 +45,9 @@ data class Task(
 
     val isSubmitted: Boolean
         get() = status == STATUS_SUBMITTED
+
+    val isProofQrVerified: Boolean
+        get() = proofQrVerifiedAt != null
 
     val isCompleted: Boolean
         get() = status == STATUS_COMPLETED
@@ -74,12 +80,30 @@ data class Task(
                 status = (map["status"] as? String) ?: STATUS_OPEN,
                 scheduledFor = (map["scheduledFor"] as? String) ?: "Now",
                 proofPath = map["proofPath"] as? String,
+                proofDescription = map["proofDescription"] as? String,
+                proofQrVerifiedAt = map["proofQrVerifiedAt"] as? Timestamp,
                 createdAt = map["createdAt"] as? Timestamp,
                 updatedAt = map["updatedAt"] as? Timestamp,
+                acceptedAt = map["acceptedAt"] as? Timestamp,
                 rated = (map["rated"] as? Boolean) ?: false
             )
         }
     }
+}
+
+/**
+ * Task item paired with calculated geospatial distance from worker location.
+ */
+data class TaskWithDistance(
+    val task: Task,
+    val distanceMeters: Double
+) {
+    val formattedDistance: String
+        get() = if (distanceMeters < 1000) {
+            "${distanceMeters.toInt()} m away"
+        } else {
+            "%.1f km away".format(distanceMeters / 1000.0)
+        }
 }
 
 /**
@@ -92,4 +116,3 @@ data class PostTaskResult(
     val available: Long,
     val held: Long
 )
-

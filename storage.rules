@@ -1,0 +1,40 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function taskPath(taskId) {
+      return /databases/(default)/documents/tasks/$(taskId);
+    }
+
+    function isAssignedWorker(taskId, workerId) {
+      return request.auth != null
+        && request.auth.uid == workerId
+        && firestore.exists(taskPath(taskId))
+        && firestore.get(taskPath(taskId)).data.workerId == request.auth.uid
+        && firestore.get(taskPath(taskId)).data.status == 'started';
+    }
+
+    function isTaskParticipant(taskId) {
+      return request.auth != null
+        && firestore.exists(taskPath(taskId))
+        && (
+          firestore.get(taskPath(taskId)).data.workerId == request.auth.uid
+          || firestore.get(taskPath(taskId)).data.posterId == request.auth.uid
+        );
+    }
+
+    match /task-proofs/{taskId}/{workerId}/{fileName} {
+      allow read: if isTaskParticipant(taskId);
+      allow create: if isAssignedWorker(taskId, workerId)
+        && request.resource.size <= 5 * 1024 * 1024
+        && (
+          (fileName.matches('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.jpg$')
+            && request.resource.contentType == 'image/jpeg')
+          || (fileName.matches('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.png$')
+            && request.resource.contentType == 'image/png')
+        );
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

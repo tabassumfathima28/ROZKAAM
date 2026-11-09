@@ -1,9 +1,14 @@
 package com.rozkaam.app.ui.screens.onboarding
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
+import com.rozkaam.app.BuildConfig
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,7 +71,7 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val activity = context as? Activity
+    val activity = context.findActivity()
     val otpFocusRequester = remember { FocusRequester() }
 
     // Intercept hardware system back button if in OTP step
@@ -240,6 +245,25 @@ fun LoginScreen(
                                 )
                             )
                         }
+
+                        if (BuildConfig.DEBUG) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Surface(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { viewModel.onPhoneNumberChange("7358496770") },
+                                color = Buttermilk.copy(alpha = 0.5f),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, OldBurgundy.copy(alpha = 0.2f))
+                            ) {
+                                Text(
+                                    text = "⚡ Fill Test Phone: 7358496770",
+                                    fontFamily = NunitoFontFamily,
+                                    fontSize = 12.sp,
+                                    color = OldBurgundy,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
                     } else {
                         // STEP 2: 6-Box OTP Input per A5
                         RozkaamOtpInput(
@@ -248,6 +272,25 @@ fun LoginScreen(
                             focusRequester = otpFocusRequester,
                             onComplete = { viewModel.verifyOtp() }
                         )
+
+                        if (BuildConfig.DEBUG) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Surface(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { viewModel.onOtpChange("123456") },
+                                color = Buttermilk.copy(alpha = 0.5f),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, OldBurgundy.copy(alpha = 0.2f))
+                            ) {
+                                Text(
+                                    text = "⚡ Fill Test OTP: 123456",
+                                    fontFamily = NunitoFontFamily,
+                                    fontSize = 12.sp,
+                                    color = OldBurgundy,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
@@ -366,4 +409,13 @@ fun LoginScreen(
             }
         }
     }
+}
+
+/**
+ * Traverses context wrappers to find the host Activity.
+ */
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

@@ -1,6 +1,18 @@
 const test = require("node:test");
 const assert = require("node:assert");
+const admin = require("firebase-admin");
+if (!admin.apps.length) {
+  admin.initializeApp({ projectId: "rozkaam-unit-tests" });
+}
 const { encodeGeohash } = require("../lib/geohash");
+const { createProofSubmissionUpdate } = require("../lib/lifecycle");
+const { generateTaskOtp } = require("../lib/tasks");
+
+test("Task arrival OTPs are cryptographically generated four-digit values", () => {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    assert.match(generateTaskOtp(), /^\d{4}$/);
+  }
+});
 
 test("Geohash Encoding - Accuracy & Length", () => {
   // Bangalore coordinates
@@ -200,5 +212,193 @@ test("PostTask - In-memory Transaction & Escrow Hold Simulation", () => {
       });
     },
     /Invalid address/
+  );
+});
+
+test("AcceptTask - Concurrency, Eligibility & Escrow Preservation Simulation", () => {
+  const mockDb = {
+    users: new Map([
+      ["worker_ready", { uid: "worker_ready", available: true, activeMode: "worker" }],
+      ["worker_busy", { uid: "worker_busy", available: false, activeMode: "worker" }],
+      ["worker_competitor", { uid: "worker_competitor", available: true, activeMode: "worker" }],
+      ["poster_owner", { uid: "poster_owner", available: true, activeMode: "poster" }]
+    ]),
+    wallets: new Map([
+      ["poster_owner", { available: 20000, held: 30000 }],
+      ["worker_ready", { available: 5000, held: 0 }]
+    ]),
+    tasks: new Map([
+      [
+        "task_open_1",
+        {
+          id: "task_open_1",
+          title: "Fix kitchen sink leak",
+          posterId: "poster_owner",
+          workerId: null,
+          status: "open",
+          price: 30000
+        }
+      ],
+      [
+        "task_already_accepted",
+        {
+          id: "task_already_accepted",
+          title: "Deliver packages",
+          posterId: "poster_owner",
+          workerId: "other_worker",
+          status: "accepted",
+          price: 25000
+        }
+      ]
+    ])
+  };
+
+  function simulateAcceptTask(workerUid, taskId) {
+    if (!workerUid) throw new Error("Unauthenticated");
+    if (!taskId) throw new Error("Task ID is required");
+
+    const user = mockDb.users.get(workerUid);
+    if (!user) throw new Error("Worker profile not found");
+    if (user.available !== true) {
+      throw new Error("Worker is currently set to unavailable. Please turn on 'I am free now' to accept tasks.");
+    }
+
+    const task = mockDb.tasks.get(taskId);
+    if (!task) throw new Error("Task not found");
+    if (task.posterId === workerUid) {
+      throw new Error("You cannot accept your own task.");
+    }
+    if (task.status !== "open") {
+      throw new Error("This task is no longer open for acceptance.");
+    }
+
+    // Atomic update
+    task.status = "accepted";
+    task.workerId = workerUid;
+    task.acceptedAt = Date.now();
+
+    return {
+      success: true,
+      taskId,
+      status: "accepted"
+    };
+  }
+
+  // 1. Successful Acceptance by available worker
+  const initialPosterWallet = { ...mockDb.wallets.get("poster_owner") };
+  const initialWorkerWallet = { ...mockDb.wallets.get("worker_ready") };
+
+  const acceptResult = simulateAcceptTask("worker_ready", "task_open_1");
+  assert.strictEqual(acceptResult.success, true);
+  assert.strictEqual(acceptResult.status, "accepted");
+
+  const acceptedTask = mockDb.tasks.get("task_open_1");
+  assert.strictEqual(acceptedTask.status, "accepted");
+  assert.strictEqual(acceptedTask.workerId, "worker_ready");
+
+  // Escrow balance preservation verification: no money changed during acceptance
+  const afterPosterWallet = mockDb.wallets.get("poster_owner");
+  const afterWorkerWallet = mockDb.wallets.get("worker_ready");
+  assert.strictEqual(afterPosterWallet.available, initialPosterWallet.available);
+  assert.strictEqual(afterPosterWallet.held, initialPosterWallet.held);
+  assert.strictEqual(afterWorkerWallet.available, initialWorkerWallet.available);
+  assert.strictEqual(afterWorkerWallet.held, initialWorkerWallet.held);
+
+  // 2. Reject poster accepting own task
+  mockDb.tasks.set("task_open_2", {
+    id: "task_open_2",
+    title: "Clean roof gutter",
+    posterId: "poster_owner",
+    workerId: null,
+    status: "open",
+    price: 40000
+  });
+
+  test("SubmitTaskProof - Only assigned started worker can submit proof once", () => {
+    const task = {
+      workerId: "worker_ready",
+      status: "started"
+    };
+    const proofPath = "task-proofs/task_open_1/worker_ready/123e4567-e89b-12d3-a456-426614174000.jpg";
+
+    const update = createProofSubmissionUpdate(
+      "worker_ready",
+      "task_open_1",
+      task,
+      proofPath,
+      "Completed the requested cleaning."
+    );
+    assert.deepStrictEqual(update, {
+      status: "submitted",
+      workerId: "worker_ready",
+      proofPath,
+      proofDescription: "Completed the requested cleaning."
+    });
+
+    assert.throws(
+      () => createProofSubmissionUpdate(
+        "worker_competitor",
+        "task_open_1",
+        task,
+        "task-proofs/task_open_1/worker_competitor/123e4567-e89b-12d3-a456-426614174000.jpg",
+        "Completed the requested cleaning."
+      ),
+      /Only the assigned worker/
+    );
+    assert.throws(
+      () => createProofSubmissionUpdate(
+        "worker_ready",
+        "task_open_1",
+        { ...task, status: "submitted" },
+        proofPath,
+        "Another submission."
+      ),
+      /must be started/
+    );
+    assert.throws(
+      () => createProofSubmissionUpdate(
+        "worker_ready",
+        "task_open_1",
+        task,
+        "task-proofs/task_open_1/other_worker/123e4567-e89b-12d3-a456-426614174000.jpg",
+        "Completed the requested cleaning."
+      ),
+      /assigned task's proof folder/
+    );
+  });
+
+  assert.throws(
+    () => simulateAcceptTask("poster_owner", "task_open_2"),
+    /You cannot accept your own task/
+  );
+
+  // 3. Reject unavailable worker
+  assert.throws(
+    () => simulateAcceptTask("worker_busy", "task_open_2"),
+    /Worker is currently set to unavailable/
+  );
+
+  // 4. Reject already accepted task
+  assert.throws(
+    () => simulateAcceptTask("worker_ready", "task_already_accepted"),
+    /This task is no longer open for acceptance/
+  );
+
+  // 5. Simultaneous / Concurrent acceptance race simulation
+  // Both worker_ready and worker_competitor see task_open_2 as open and attempt acceptance
+  const racer1Success = simulateAcceptTask("worker_competitor", "task_open_2");
+  assert.strictEqual(racer1Success.success, true);
+  assert.strictEqual(mockDb.tasks.get("task_open_2").workerId, "worker_competitor");
+
+  // Immediate second attempt on the same task by worker_ready must fail atomically
+  assert.throws(
+    () => simulateAcceptTask("worker_ready", "task_open_2"),
+    /This task is no longer open for acceptance/
+  );
+
+  // 6. Unauthenticated rejection
+  assert.throws(
+    () => simulateAcceptTask("", "task_open_2"),
+    /Unauthenticated/
   );
 });

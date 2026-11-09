@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.ui.viewmodels.WorkerTasksViewModelTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-09T08:08:23.691Z" hostname="DESKTOP-16HKJ30" time="0.029">
+  <properties/>
+  <testcase name="observeTasks_loadsOnlyAssignedWorkerTasksAndGroupsByStatus" classname="com.rozkaam.app.ui.viewmodels.WorkerTasksViewModelTest" time="0.014"/>
+  <testcase name="cancelledTasksRemainAccessibleWithoutInflatingActiveOrCompletedCounts" classname="com.rozkaam.app.ui.viewmodels.WorkerTasksViewModelTest" time="0.004"/>
+  <testcase name="observesTasksWhenAuthenticationBecomesAvailableAndRefreshesLiveData" classname="com.rozkaam.app.ui.viewmodels.WorkerTasksViewModelTest" time="0.004"/>
+  <testcase name="acceptedTasksAreExcludedFromNearbyOpenTasks" classname="com.rozkaam.app.ui.viewmodels.WorkerTasksViewModelTest" time="0.005"/>
+  <testcase name="selectingCompletedShowsOnlyCompletedWorkerTasks" classname="com.rozkaam.app.ui.viewmodels.WorkerTasksViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.ui.viewmodels.WorkerHomeViewModelTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-09T08:08:23.638Z" hostname="DESKTOP-16HKJ30" time="0.023">
+  <properties/>
+  <testcase name="setMapView_togglesViewMode" classname="com.rozkaam.app.ui.viewmodels.WorkerHomeViewModelTest" time="0.006"/>
+  <testcase name="updateWorkerLocation_filtersTasksByRadiusAndExcludesOwnTasks" classname="com.rozkaam.app.ui.viewmodels.WorkerHomeViewModelTest" time="0.007"/>
+  <testcase name="setRadius_updatesRadiusInStateAndRepo" classname="com.rozkaam.app.ui.viewmodels.WorkerHomeViewModelTest" time="0.003"/>
+  <testcase name="initialState_loadsUserProfileAndAvailability" classname="com.rozkaam.app.ui.viewmodels.WorkerHomeViewModelTest" time="0.003"/>
+  <testcase name="toggleAvailability_updatesUserRepoAndState" classname="com.rozkaam.app.ui.viewmodels.WorkerHomeViewModelTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

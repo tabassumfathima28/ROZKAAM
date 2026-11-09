@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.rozkaam.app-mergeDebugResources-71:/values-v30/values-v30.xml",
+            "outputFile": "com.rozkaam.app-mergeDebugResources-81:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.5.0\\transforms\\016b70b6da42d74662fbafa6caa2ffb4\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.5.0\\transforms\\a3b1eb202cf158fc84d9302b5b094f52\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

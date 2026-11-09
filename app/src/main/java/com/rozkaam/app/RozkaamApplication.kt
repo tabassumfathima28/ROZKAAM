@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.storage.FirebaseStorage
 
 /**
  * Custom Application class for ROZKAAM.
@@ -35,9 +36,12 @@ class RozkaamApplication : Application() {
             // 3. Cloud Functions: 10.0.2.2:5001
             FirebaseFunctions.getInstance().useEmulator(emulatorHost, 5001)
 
+            // 4. Cloud Storage: 10.0.2.2:9199
+            FirebaseStorage.getInstance().useEmulator(emulatorHost, 9199)
+
             Log.i(
                 TAG,
-                "Connected to Firebase Emulator Suite (Auth: $emulatorHost:9099, Firestore: $emulatorHost:8080, Functions: $emulatorHost:5001)"
+                "Connected to Firebase Emulator Suite (Auth: $emulatorHost:9099, Firestore: $emulatorHost:8080, Functions: $emulatorHost:5001, Storage: $emulatorHost:9199)"
             )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to connect to Firebase Emulators", e)
@@ -48,4 +52,3 @@ class RozkaamApplication : Application() {
         private const val TAG = "RozkaamApplication"
     }
 }
-

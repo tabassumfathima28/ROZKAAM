@@ -16,7 +16,8 @@ data class Transaction(
     val amount: Long = 0L, // in paise
     val taskId: String? = null,
     val razorpayPaymentId: String? = null,
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    val direction: String? = null
 ) {
     val amountRupees: Double get() = amount / 100.0
 
@@ -24,7 +25,11 @@ data class Transaction(
      * Determines whether this transaction credited the user's available balance.
      */
     val isCredit: Boolean
-        get() = type in listOf("topup", "release", "refund")
+        get() = when (type) {
+            "topup", "refund" -> true
+            "release" -> direction != "debit"
+            else -> false
+        }
 
     val formattedAmount: String
         get() = "${if (isCredit) "+" else "-"}₹${amount / 100}"
@@ -51,6 +56,7 @@ data class Transaction(
             if (map == null) return Transaction(id = id)
             val uid = map["uid"] as? String ?: ""
             val type = map["type"] as? String ?: ""
+            val direction = map["direction"] as? String
             val amount = (map["amount"] as? Number)?.toLong() ?: 0L
             val taskId = map["taskId"] as? String
             val razorpayPaymentId = map["razorpayPaymentId"] as? String
@@ -63,6 +69,7 @@ data class Transaction(
                 id = id,
                 uid = uid,
                 type = type,
+                direction = direction,
                 amount = amount,
                 taskId = taskId,
                 razorpayPaymentId = razorpayPaymentId,
@@ -71,4 +78,3 @@ data class Transaction(
         }
     }
 }
-

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Assignment
@@ -24,16 +26,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rozkaam.app.ui.components.RozkaamCard
 import com.rozkaam.app.ui.components.RozkaamEmptyState
 import com.rozkaam.app.ui.components.RozkaamPrimaryButton
-import com.rozkaam.app.ui.components.RozkaamSecondaryButton
 import com.rozkaam.app.ui.theme.BackgroundLight
 import com.rozkaam.app.ui.theme.Buttermilk
 import com.rozkaam.app.ui.theme.MutedRed
@@ -42,14 +46,18 @@ import com.rozkaam.app.ui.theme.OldBurgundy
 import com.rozkaam.app.ui.theme.PastelBlue
 import com.rozkaam.app.ui.theme.PoppinsFontFamily
 import com.rozkaam.app.ui.theme.TextSecondary
+import com.rozkaam.app.ui.viewmodels.PosterTasksViewModel
 
 @Composable
 fun PosterHomeScreen(
     onNavigateToPostTask: () -> Unit,
-    onNavigateToTaskDetails: () -> Unit,
+    onNavigateToTaskDetails: (String) -> Unit,
     onNavigateToNotifications: () -> Unit,
-    onNavigateToSos: () -> Unit
+    onNavigateToSos: () -> Unit,
+    viewModel: PosterTasksViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             Row(
@@ -125,7 +133,7 @@ fun PosterHomeScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
         ) {
-            // Summary Cards per A5: Active, Awaiting Approval, Completed
+            // Live Summary Cards per SPEC.md Section A5: Active, Awaiting Approval, Completed
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -139,12 +147,12 @@ fun PosterHomeScreen(
                     Text(
                         text = "Active",
                         fontFamily = NunitoFontFamily,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         color = TextSecondary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "0",
+                        text = uiState.activeCount.toString(),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
@@ -161,12 +169,12 @@ fun PosterHomeScreen(
                     Text(
                         text = "Awaiting",
                         fontFamily = NunitoFontFamily,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         color = OldBurgundy
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "0",
+                        text = uiState.awaitingApprovalCount.toString(),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
@@ -183,12 +191,12 @@ fun PosterHomeScreen(
                     Text(
                         text = "Done",
                         fontFamily = NunitoFontFamily,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         color = TextSecondary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "0",
+                        text = uiState.completedCount.toString(),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
@@ -218,31 +226,32 @@ fun PosterHomeScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Real Empty State per A2
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                RozkaamEmptyState(
-                    title = "No Tasks Posted Yet",
-                    message = "Tap 'Post a Task' above to define a micro-task, choose your location and price, and get matched with nearby verified workers.",
-                    icon = Icons.AutoMirrored.Outlined.Assignment,
-                    actionText = "Post Your First Task",
-                    onActionClick = onNavigateToPostTask
-                )
-            }
-
-            // Quick navigation to Task Details
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                RozkaamSecondaryButton(
-                    text = "Inspect Task Detail Skeleton",
-                    onClick = onNavigateToTaskDetails
-                )
+                if (uiState.tasks.isEmpty()) {
+                    RozkaamEmptyState(
+                        title = "No Tasks Posted Yet",
+                        message = "Tap 'Post a Task' above to define a micro-task, choose your location and price, and get matched with nearby verified workers.",
+                        icon = Icons.AutoMirrored.Outlined.Assignment,
+                        actionText = "Post Your First Task",
+                        onActionClick = onNavigateToPostTask
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(uiState.tasks.take(5), key = { it.id }) { task ->
+                            PosterTaskCard(
+                                task = task,
+                                onClick = { onNavigateToTaskDetails(task.id) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }

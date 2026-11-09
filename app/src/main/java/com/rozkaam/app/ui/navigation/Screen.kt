@@ -9,9 +9,18 @@ sealed class Screen(val route: String) {
 
     // Worker Nested Graph
     object WorkerHome : Screen("worker/home")
-    object WorkerTaskDetails : Screen("worker/task_details")
-    object WorkerActiveJob : Screen("worker/active_job")
-    object WorkerUploadProof : Screen("worker/upload_proof")
+    object WorkerTaskDetails : Screen("worker/task_details") {
+        fun createRoute(taskId: String = ""): String = if (taskId.isNotBlank()) "worker/task_details?taskId=$taskId" else route
+    }
+    object WorkerActiveJob : Screen("worker/active_job") {
+        fun createRoute(taskId: String): String = "worker/active_job?taskId=$taskId"
+    }
+    object WorkerUploadProof : Screen("worker/upload_proof") {
+        fun createRoute(taskId: String): String = "worker/upload_proof?taskId=$taskId"
+    }
+    object WorkerProofQrScanner : Screen("worker/proof_qr_scanner") {
+        fun createRoute(taskId: String): String = "worker/proof_qr_scanner?taskId=$taskId"
+    }
     object WorkerJobCompleted : Screen("worker/job_completed")
     object WorkerEarnings : Screen("worker/earnings")
     object WorkerWithdraw : Screen("worker/withdraw")
@@ -20,7 +29,9 @@ sealed class Screen(val route: String) {
     // Poster Nested Graph
     object PosterHome : Screen("poster/home")
     object PosterPostTask : Screen("poster/post_task")
-    object PosterTaskDetails : Screen("poster/task_details")
+    object PosterTaskDetails : Screen("poster/task_details") {
+        fun createRoute(taskId: String = ""): String = if (taskId.isNotBlank()) "poster/task_details?taskId=$taskId" else route
+    }
     object PosterTasks : Screen("poster/tasks")
     object PosterWallet : Screen("poster/wallet")
     object PosterAddMoney : Screen("poster/add_money")

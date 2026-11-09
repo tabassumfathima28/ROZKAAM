@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postTask = exports.razorpayWebhook = exports.verifyTopUp = exports.createTopUpOrder = exports.syncPublicProfile = void 0;
+exports.verifyTaskProofQr = exports.submitTaskProof = exports.startTask = exports.requestWithdrawal = exports.rateWorker = exports.processWithdrawal = exports.onTaskStatusChanged = exports.getCounterpartContact = exports.cancelTask = exports.autoReleaseTasks = exports.approveTask = exports.acceptTask = exports.postTask = exports.razorpayWebhook = exports.verifyTopUp = exports.createTopUpOrder = exports.syncPublicProfile = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin once at module load
 if (!admin.apps.length) {
@@ -48,4 +48,17 @@ Object.defineProperty(exports, "verifyTopUp", { enumerable: true, get: function 
 Object.defineProperty(exports, "razorpayWebhook", { enumerable: true, get: function () { return topup_1.razorpayWebhook; } });
 var tasks_1 = require("./tasks");
 Object.defineProperty(exports, "postTask", { enumerable: true, get: function () { return tasks_1.postTask; } });
+Object.defineProperty(exports, "acceptTask", { enumerable: true, get: function () { return tasks_1.acceptTask; } });
+var lifecycle_1 = require("./lifecycle");
+Object.defineProperty(exports, "approveTask", { enumerable: true, get: function () { return lifecycle_1.approveTask; } });
+Object.defineProperty(exports, "autoReleaseTasks", { enumerable: true, get: function () { return lifecycle_1.autoReleaseTasks; } });
+Object.defineProperty(exports, "cancelTask", { enumerable: true, get: function () { return lifecycle_1.cancelTask; } });
+Object.defineProperty(exports, "getCounterpartContact", { enumerable: true, get: function () { return lifecycle_1.getCounterpartContact; } });
+Object.defineProperty(exports, "onTaskStatusChanged", { enumerable: true, get: function () { return lifecycle_1.onTaskStatusChanged; } });
+Object.defineProperty(exports, "processWithdrawal", { enumerable: true, get: function () { return lifecycle_1.processWithdrawal; } });
+Object.defineProperty(exports, "rateWorker", { enumerable: true, get: function () { return lifecycle_1.rateWorker; } });
+Object.defineProperty(exports, "requestWithdrawal", { enumerable: true, get: function () { return lifecycle_1.requestWithdrawal; } });
+Object.defineProperty(exports, "startTask", { enumerable: true, get: function () { return lifecycle_1.startTask; } });
+Object.defineProperty(exports, "submitTaskProof", { enumerable: true, get: function () { return lifecycle_1.submitTaskProof; } });
+Object.defineProperty(exports, "verifyTaskProofQr", { enumerable: true, get: function () { return lifecycle_1.verifyTaskProofQr; } });
 //# sourceMappingURL=index.js.map

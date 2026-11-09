@@ -150,6 +150,25 @@ class PostTaskViewModelTest {
     }
 
     @Test
+    fun walletUpdatesRecalculatePostEligibility() = runTest {
+        advanceUntilIdle()
+        viewModel.onPriceInputChange("800")
+        assertFalse(viewModel.uiState.value.isStep3Valid)
+
+        fakeWalletRepo.walletFlow.value = Wallet(available = 100000L, held = 0L)
+        advanceUntilIdle()
+        assertEquals(100000L, viewModel.uiState.value.wallet.available)
+        assertTrue(viewModel.uiState.value.hasSufficientBalance)
+        assertTrue(viewModel.uiState.value.isStep3Valid)
+
+        fakeWalletRepo.walletFlow.value = Wallet(available = 50000L, held = 0L)
+        advanceUntilIdle()
+        assertEquals(50000L, viewModel.uiState.value.wallet.available)
+        assertFalse(viewModel.uiState.value.hasSufficientBalance)
+        assertFalse(viewModel.uiState.value.isStep3Valid)
+    }
+
+    @Test
     fun submitTask_successfulEscrowPlacement() = runTest {
         advanceUntilIdle()
 
@@ -235,4 +254,3 @@ class PostTaskViewModelTest {
         assertEquals(0, viewModel.uiState.value.currentStep)
     }
 }
-

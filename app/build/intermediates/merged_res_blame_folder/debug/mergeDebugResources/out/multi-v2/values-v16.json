@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.rozkaam.app-mergeDebugResources-81:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.5.0\\transforms\\8eb46feff902d1ae750b4f138e588176\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    }
+                }
+            ]
+        }
+    ]
+}

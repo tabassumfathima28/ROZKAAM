@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.browser)
     implementation(libs.androidx.ui.text.google.fonts)
 
     // Images
@@ -94,6 +95,12 @@ dependencies {
 
     // Razorpay Checkout
     implementation(libs.razorpay.checkout)
+
+    // QR Code generation & scanning
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
 
     // Firebase
     implementation(platform(libs.firebase.bom))

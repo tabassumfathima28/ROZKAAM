@@ -12,4 +12,17 @@ export {
   verifyTopUp,
   razorpayWebhook,
 } from "./topup";
-export { postTask } from "./tasks";
+export { postTask, acceptTask } from "./tasks";
+export {
+  approveTask,
+  autoReleaseTasks,
+  cancelTask,
+  getCounterpartContact,
+  onTaskStatusChanged,
+  processWithdrawal,
+  rateWorker,
+  requestWithdrawal,
+  startTask,
+  submitTaskProof,
+  verifyTaskProofQr,
+} from "./lifecycle";

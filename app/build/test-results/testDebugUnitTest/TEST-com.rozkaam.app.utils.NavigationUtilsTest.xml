@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.utils.NavigationUtilsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-09T08:08:23.751Z" hostname="DESKTOP-16HKJ30" time="0.003">
+  <properties/>
+  <testcase name="areValidCoordinates_validInputs_returnsTrue" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.001"/>
+  <testcase name="buildGoogleMapsDirectionsUrl_negativeCoordinates" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.001"/>
+  <testcase name="areValidCoordinates_nullIsland_returnsFalse" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.0"/>
+  <testcase name="areValidCoordinates_nullCoordinates_returnsFalse" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.001"/>
+  <testcase name="openDirectionsInBrowser_invalidCoordinates_triggersCallback" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.0"/>
+  <testcase name="areValidCoordinates_nanOrInfinite_returnsFalse" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.0"/>
+  <testcase name="areValidCoordinates_outOfBounds_returnsFalse" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.0"/>
+  <testcase name="buildGoogleMapsDirectionsUrl_constructsExpectedHttpsUrl" classname="com.rozkaam.app.utils.NavigationUtilsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

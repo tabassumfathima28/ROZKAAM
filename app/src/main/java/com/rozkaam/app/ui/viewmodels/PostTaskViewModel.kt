@@ -54,11 +54,16 @@ data class PostTaskUiState(
     val priceRupees: Long
         get() = pricePaise / 100
 
+    val isMountainViewDefault: Boolean
+        get() = (latitude in 37.40..37.45 && longitude in -122.10..-122.05) ||
+                address.contains("Mountain View", ignoreCase = true) ||
+                address.contains("Amphitheatre", ignoreCase = true)
+
     val isStep1Valid: Boolean
         get() = selectedCategory.isNotBlank() && title.trim().length >= 3 && description.trim().length >= 5
 
     val isStep2Valid: Boolean
-        get() = address.isNotBlank() && (scheduledFor != "Schedule" || customScheduleText.isNotBlank())
+        get() = address.isNotBlank() && !isMountainViewDefault && (scheduledFor != "Schedule" || customScheduleText.isNotBlank())
 
     val isPriceWithinBounds: Boolean
         get() = pricePaise in appConfig.minPrice..appConfig.maxPrice
@@ -107,11 +112,15 @@ class PostTaskViewModel(
                 }
             }
             1 -> {
+                if (_uiState.value.isMountainViewDefault) {
+                    _uiState.update { it.copy(errorMessage = "Default emulator location (Mountain View, USA) detected. Please set an Indian task location (e.g. Bengaluru).") }
+                    return false
+                }
                 if (_uiState.value.isStep2Valid) {
                     _uiState.update { it.copy(currentStep = 2, errorMessage = null) }
                     return true
                 } else {
-                    _uiState.update { it.copy(errorMessage = "Please confirm the location address.") }
+                    _uiState.update { it.copy(errorMessage = "Please enter or confirm a valid task location.") }
                     return false
                 }
             }
@@ -200,21 +209,26 @@ class PostTaskViewModel(
             _uiState.update { it.copy(isLoadingCategories = true, categoriesError = null) }
             taskRepository.getCategories()
                 .catch { err ->
-                    _uiState.update {
-                        it.copy(
+                    android.util.Log.w("PostTaskViewModel", "Category stream error: ${err.message}. Using bundled fallback.")
+                    val fallback = TaskCategory.DEFAULT_CATEGORIES
+                    _uiState.update { current ->
+                        current.copy(
                             isLoadingCategories = false,
-                            categoriesError = err.localizedMessage ?: "Failed to load categories."
+                            categories = fallback,
+                            categoriesError = null,
+                            selectedCategory = current.selectedCategory.ifBlank { fallback.first().id }
                         )
                     }
                 }
                 .collect { list ->
+                    val resolvedList = if (list.isNotEmpty()) list else TaskCategory.DEFAULT_CATEGORIES
                     _uiState.update { current ->
                         current.copy(
                             isLoadingCategories = false,
-                            categories = list,
+                            categories = resolvedList,
                             categoriesError = null,
-                            selectedCategory = if (current.selectedCategory.isBlank() && list.isNotEmpty()) {
-                                list.first().id
+                            selectedCategory = if (current.selectedCategory.isBlank() && resolvedList.isNotEmpty()) {
+                                resolvedList.first().id
                             } else current.selectedCategory
                         )
                     }
@@ -225,18 +239,41 @@ class PostTaskViewModel(
     private fun loadAppConfig() {
         viewModelScope.launch {
             walletRepository.getAppConfig()
-                .catch { /* Fall back to defaults in AppConfig() */ }
+                .catch { err ->
+                    val cause = (err as? java.util.concurrent.ExecutionException)?.cause ?: err
+                    android.util.Log.w("PostTaskViewModel", "Could not load app config: ${cause.localizedMessage}")
+                }
                 .collect { config ->
                     _uiState.update { it.copy(appConfig = config) }
                 }
         }
     }
 
+    private var walletJob: kotlinx.coroutines.Job? = null
+
     private fun observeWallet() {
-        val uid = authRepository.currentUserId ?: return
+        authRepository.currentUserId?.takeIf { it.isNotBlank() }?.let { uid ->
+            startObservingWallet(uid)
+        }
+
         viewModelScope.launch {
+            authRepository.observeAuthState().collect { user ->
+                val uid = user?.uid ?: authRepository.currentUserId
+                if (!uid.isNullOrBlank()) {
+                    startObservingWallet(uid)
+                }
+            }
+        }
+    }
+
+    private fun startObservingWallet(uid: String) {
+        walletJob?.cancel()
+        walletJob = viewModelScope.launch {
             walletRepository.getWallet(uid)
-                .catch { /* Keep existing wallet state */ }
+                .catch { err ->
+                    val cause = (err as? java.util.concurrent.ExecutionException)?.cause ?: err
+                    android.util.Log.w("PostTaskViewModel", "Could not load wallet: ${cause.localizedMessage}")
+                }
                 .collect { wallet ->
                     _uiState.update { it.copy(wallet = wallet) }
                 }
@@ -296,10 +333,20 @@ class PostTaskViewModel(
                     }
                 },
                 onFailure = { err ->
+                    val actualErr = (err as? java.util.concurrent.ExecutionException)?.cause ?: err
+                    val rawMsg = actualErr.localizedMessage ?: actualErr.message ?: "Failed to post task."
+                    val cleanMsg = when {
+                        rawMsg.contains("INVALID_REFRESH_TOKEN", ignoreCase = true) ||
+                        rawMsg.contains("unauthenticated", ignoreCase = true) ->
+                            "Authentication session expired. Please sign in again."
+                        rawMsg.contains("underlying tasks failed", ignoreCase = true) ->
+                            actualErr.cause?.localizedMessage ?: "Network or authentication error. Please try again."
+                        else -> rawMsg
+                    }
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            errorMessage = err.localizedMessage ?: "Failed to post task. Please try again."
+                            errorMessage = cleanMsg
                         )
                     }
                 }

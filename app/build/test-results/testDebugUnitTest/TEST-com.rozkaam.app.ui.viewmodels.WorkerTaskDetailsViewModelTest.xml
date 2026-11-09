@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.rozkaam.app.ui.viewmodels.WorkerTaskDetailsViewModelTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-09T08:08:23.674Z" hostname="DESKTOP-16HKJ30" time="0.014">
+  <properties/>
+  <testcase name="loadTask_loadsTaskAndPosterProfile" classname="com.rozkaam.app.ui.viewmodels.WorkerTaskDetailsViewModelTest" time="0.008"/>
+  <testcase name="acceptTask_success" classname="com.rozkaam.app.ui.viewmodels.WorkerTaskDetailsViewModelTest" time="0.003"/>
+  <testcase name="acceptTask_failure_setsErrorMessage" classname="com.rozkaam.app.ui.viewmodels.WorkerTaskDetailsViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,6 +1,7 @@
 package com.rozkaam.app.data.repository
 
 import android.app.Activity
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
@@ -9,6 +10,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 
@@ -18,6 +20,8 @@ interface AuthRepository {
     val currentUserPhone: String?
     val currentUserPhotoUrl: String?
     fun observeAuthState(): Flow<FirebaseUser?>
+    fun observeAuthUserId(): Flow<String?> =
+        observeAuthState().map { it?.uid ?: currentUserId }
     fun sendVerificationCode(
         activity: Activity,
         phoneNumber: String,
@@ -32,6 +36,10 @@ interface AuthRepository {
 class FirebaseAuthRepository(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 ) : AuthRepository {
+
+    companion object {
+        private const val TAG = "AuthRepository"
+    }
 
     override val currentUser: FirebaseUser?
         get() = auth.currentUser
@@ -61,6 +69,7 @@ class FirebaseAuthRepository(
         resendToken: PhoneAuthProvider.ForceResendingToken?,
         callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
     ) {
+        Log.d(TAG, "sendVerificationCode called for $phoneNumber (resend=${resendToken != null})")
         val optionsBuilder = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
@@ -71,6 +80,7 @@ class FirebaseAuthRepository(
             optionsBuilder.setForceResendingToken(resendToken)
         }
 
+        Log.d(TAG, "Calling PhoneAuthProvider.verifyPhoneNumber — auth emulator host: ${auth.app.options.projectId}")
         PhoneAuthProvider.verifyPhoneNumber(optionsBuilder.build())
     }
 
